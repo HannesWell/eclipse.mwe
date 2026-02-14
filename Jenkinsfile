@@ -47,7 +47,7 @@ pipeline {
   stages {
     stage('Prepare') {
       environment {
-        KEYRING = credentials('11ef2671-e2bc-4da7-8f89-f4b0ba8ffa3e')
+        KEYRING = credentials('secret-subkeys.asc')
       }
       steps {
         dir ('git-repo') {
@@ -223,7 +223,7 @@ EOF
   post {
     always {
       junit allowEmptyResults: true, testResults: '**/surefire-reports/*.xml'
-      archiveArtifacts artifacts: '**/target/work/data/.metadata/.log, **/target/work/data/.metadata/bak*.log'
+      archiveArtifacts artifacts: '**/target/work/data/.metadata/.log, **/target/work/data/.metadata/bak*.log, **/target/work/configuration/*.log'
     }
     cleanup {
       script {
@@ -248,13 +248,6 @@ EOF
             default: // e.g. ABORTED
               color = '#666666'
           }
-
-           matrixSendMessage https: true,
-            hostname: 'matrix.eclipse.org',
-            accessTokenCredentialsId: "matrix-token",
-            roomId: '!umPMJdXBGeZgeGiPCM:matrix.eclipse.org',
-            body: "${lastResult} => ${curResult} ${env.BUILD_URL} | ${env.JOB_NAME}#${env.BUILD_NUMBER}",
-            formattedBody: "<div><font color='${color}'>${lastResult} => ${curResult}</font> | <a href='${env.BUILD_URL}' target='_blank'>${env.JOB_NAME}#${env.BUILD_NUMBER}</a></div>"
         }
       }
     }
